@@ -3,11 +3,12 @@ FROM node:20.19-alpine AS builder
 
 WORKDIR /app
 
-# Copiar package.json y package-lock.json
+# Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm ci
+# Instalación limpia para evitar el bug de @rollup/rollup-linux-x64-musl
+RUN rm -rf node_modules package-lock.json && \
+    npm install
 
 # Copiar código fuente
 COPY . .
