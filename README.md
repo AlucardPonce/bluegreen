@@ -1,5 +1,5 @@
 # Blue-Green Deployment - Proyecto Full Stack
-
+echo "Test deployment $(date)" >> README.md
 ## 📝 Descripción
 
 Implementación de estrategia de despliegue Blue-Green para una aplicación Full Stack con:
