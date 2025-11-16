@@ -18,8 +18,6 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    # Evitar push desde PRs de forks (token no puede publicar)
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork != true
     permissions:
       contents: read
       packages: write
@@ -44,7 +42,7 @@ jobs:
 
       # Fallback opcional si tienes un PAT con write:packages (crear secret GHCR_PAT)
       - name: Log in to GHCR with PAT (fallback)
-        if: secrets.GHCR_PAT != ''
+        if: ${{ secrets.GHCR_PAT != '' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -55,7 +53,7 @@ jobs:
         id: meta-frontend
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontint
+          images: ghcr.io/${{ steps.vars.outputs.owner }}/frontint
           tags: |
             type=sha,prefix=
             type=raw,value=latest
@@ -74,7 +72,7 @@ jobs:
         id: meta-backend
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/backint
+          images: ghcr.io/${{ steps.vars.outputs.owner }}/backint
           tags: |
             type=sha,prefix=
             type=raw,value=latest
@@ -130,7 +128,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           ssh $SSH_USER@$SSH_HOST << 'EOF'
-            cd /home/deploy/bluegreen/deploy
+            cd /home/${SSH_USER}/bluegreen/deploy
             chmod +x switch-deployment.sh
             ./switch-deployment.sh ${{ github.sha }}
           EOF
