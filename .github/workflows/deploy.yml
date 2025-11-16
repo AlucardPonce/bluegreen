@@ -121,7 +121,7 @@ jobs:
           if [ "$STATUS" != "200" ]; then
             echo "Deployment verification failed with status: $STATUS"
             exit 1
-          fi
+          fi  
           echo "Deployment verified successfully!"
 
       - name: Notify deployment status
