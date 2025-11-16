@@ -66,26 +66,42 @@ ACTIVE_DEPLOYMENT=blue  # o green
 ### Error: denied: permission_denied: write_package (GHCR)
 Si el push a GHCR falla con `permission_denied: write_package`:
 
-1. En el workflow, asegura permisos:
-   - Job permissions:
-     - `packages: write`
-     - `contents: read`
-2. Autenticación a GHCR antes del build:
-   - `docker/login-action@v3` con:
-     - `registry: ghcr.io`
-     - `username: ${{ github.repository_owner }}`
-     - `password: ${{ secrets.GITHUB_TOKEN }}`
-3. En GitHub → Settings → Actions → General:
-   - Workflow permissions: habilitar “Read and write permissions”.
-4. Para repos privados u organizaciones con políticas restrictivas:
-   - Crear un PAT con scope `write:packages` y guardarlo como secret `GHCR_PAT`.
-   - Usarlo como fallback en el login.
-5. Evitar push en workflows disparados por `pull_request` desde forks (el `GITHUB_TOKEN` no puede publicar):
-   - Limitar el push a `push` en `main` o usar condición `if: github.event_name != 'pull_request'`.
-6. En organizaciones: Settings → Packages:
-   - Habilitar “Allow GitHub Actions to create and update packages”.
-   - Si SSO está forzado, autorizar el PAT (GHCR_PAT) con SSO.
-7. Asegurar que el namespace y tags sean minúsculas (owner y nombre de imagen).
+#### Solución 1: Verificar permisos de Actions (Recomendado)
+
+1. **En el repositorio**: Settings → Actions → General
+   - Workflow permissions: seleccionar **"Read and write permissions"**
+   - Marcar **"Allow GitHub Actions to create and approve pull requests"**
+
+2. **Si el repo está en una organización**:
+   - Organization Settings → Actions → General
+   - Habilitar **"Allow GitHub Actions to create and update packages"**
+   - Organization Settings → Packages
+   - Permitir que Actions publique paquetes
+
+3. **Verificar que el paquete no esté bloqueado**:
+   - Si el paquete ya existe en GHCR, ve a Packages en tu perfil/org
+   - Asegúrate de que el repositorio tenga **write access** al paquete
+   - Package settings → Manage Actions access → Add Repository
+
+#### Solución 2: Usar Personal Access Token (PAT)
+
+Si no puedes cambiar los permisos del repositorio u organización:
+
+1. Crear un PAT en Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Scopes necesarios: `read:packages`, `write:packages`, `delete:packages`
+   - Si es una organización con SSO: autorizar el PAT para la org
+
+2. Guardar el PAT como secret:
+   - Repository Settings → Secrets and variables → Actions
+   - New repository secret: `PERSONAL_ACCESS_TOKEN`
+
+3. El workflow usa automáticamente el PAT como fallback si existe
+
+#### Verificaciones adicionales
+
+- Asegúrate de que el paquete se publica bajo el mismo owner (`ghcr.io/alucardponce/...`)
+- Verifica que no haya políticas de seguridad en la org bloqueando GHCR
+- Si el workflow se ejecuta en PRs de forks, el `GITHUB_TOKEN` no tiene permisos de write (esto es esperado)
 
 ## 📦 Estructura del Proyecto
 
@@ -126,10 +142,17 @@ chmod +x deploy/switch-deployment.sh
 
 ### 2. En GitHub
 
-Configurar secrets en **Settings → Secrets**:
-- `SSH_PRIVATE_KEY`: Clave SSH privada
-- `SSH_HOST`: IP del VPS
-- `SSH_USER`: Usuario SSH
+#### Secrets requeridos (Settings → Secrets and variables → Actions):
+- `SSH_PRIVATE_KEY`: Clave SSH privada para conectar al VPS
+- `SSH_HOST`: IP o dominio del VPS
+- `SSH_USER`: Usuario SSH del VPS
+
+#### Secrets opcionales:
+- `PERSONAL_ACCESS_TOKEN`: PAT con scope `write:packages` (solo si GITHUB_TOKEN no funciona)
+
+#### Permisos de Actions (Settings → Actions → General):
+- ✅ Workflow permissions: **"Read and write permissions"**
+- ✅ Allow GitHub Actions to create and approve pull requests
 
 ## 🔧 Deployment Manual
 
