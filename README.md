@@ -8,7 +8,7 @@ Implementación de estrategia de despliegue Blue-Green para una aplicación Full
 - **Infraestructura**: Docker + Nginx + GitHub Actions
 
 ## 🏗️ Arquitectura
-
+d
 ```
                                     Internet
                                        |
