@@ -1,5 +1,5 @@
 # Pipeline CI/CD para deployment automático
-name: Blue-Green Deployment
+name: Deploy Blue-Green
 
 permissions:
   contents: read
@@ -35,21 +35,21 @@ jobs:
           echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
           echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
-      - name: Log in to GHCR
+      - name: Log in to GHCR with GITHUB_TOKEN
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ steps.vars.outputs.owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Fallback con PAT (crear secret GHCR_PAT con scope write:packages si es necesario)
-      # - name: Log in to GHCR with PAT (fallback)
-      #   if: failure()
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ steps.vars.outputs.owner }}
-      #     password: ${{ secrets.GHCR_PAT }}
+      # Fallback opcional si tienes un PAT con write:packages (crear secret GHCR_PAT)
+      - name: Log in to GHCR with PAT (fallback)
+        if: secrets.GHCR_PAT != ''
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ steps.vars.outputs.owner }}
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Extract metadata for Frontend
         id: meta-frontend
@@ -60,7 +60,7 @@ jobs:
             type=sha,prefix=
             type=raw,value=latest
 
-      - name: Build and push Frontend image
+      - name: Build and push front image
         uses: docker/build-push-action@v5
         with:
           context: ./FrontInt
