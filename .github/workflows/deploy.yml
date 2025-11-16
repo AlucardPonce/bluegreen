@@ -16,11 +16,13 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  build-and-deploy:
+  build-and-push:
+    name: Build and Push Docker Images
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      packages: write      # ← Agregar esta línea
+      id-token: write      # ← Agregar esta línea
     env:
       GHCR_PAT: ${{ secrets.GHCR_PAT }}
     
