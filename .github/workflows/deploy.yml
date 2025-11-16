@@ -119,25 +119,79 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
+            set -e
             cd ~/bluegreen/deploy
-
-            # Login a GitHub Container Registry
+            
+            echo "📁 Verificando archivos..."
+            ls -la
+            
+            echo "🔑 Login a GitHub Container Registry..."
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            # Ejecutar Blue-Green deployment
+            
+            echo "🔵🟢 Verificando deployment activo actual..."
+            if [ ! -f ~/.env.deployment ]; then
+              echo "ACTIVE_DEPLOYMENT=blue" > ~/.env.deployment
+            fi
+            cat ~/.env.deployment
+            
+            echo "🚀 Ejecutando Blue-Green deployment..."
             chmod +x switch-deployment.sh
             ./switch-deployment.sh ${{ github.sha }}
-
-            # Estado
-            cat ~/.env.deployment
+            
+            echo "📊 Estado de contenedores..."
             docker ps --filter "name=frontend\|backend"
+            
+            echo "🔍 Verificando ambiente activo..."
+            cat ~/.env.deployment
+            
+            echo "🏥 Health check de contenedores..."
+            sleep 5
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+      - name: Wait for services to be ready
+        run: |
+          echo "⏳ Esperando a que los servicios estén listos..."
+          sleep 15
 
       - name: Verify deployment
         run: |
-          sleep 10
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SSH_HOST }})
-          if [ "$STATUS" != "200" ]; then
-            echo "❌ Deployment verification failed with status: $STATUS"
-            exit 1
-          fi  
-          echo "✅ Deployment verified successfully!"
+          echo "🔍 Verificando deployment en http://${{ secrets.SSH_HOST }}"
+          
+          # Intentar hasta 3 veces con delay
+          for i in {1..3}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SSH_HOST }})
+            echo "Intento $i: HTTP $STATUS"
+            
+            if [ "$STATUS" == "200" ]; then
+              echo "✅ Deployment verified successfully!"
+              exit 0
+            fi
+            
+            if [ $i -lt 3 ]; then
+              echo "⏳ Esperando 10 segundos antes del siguiente intento..."
+              sleep 10
+            fi
+          done
+          
+          echo "❌ Deployment verification failed with status: $STATUS"
+          echo "🔍 Verificando logs en el servidor..."
+          exit 1
+
+      - name: Show logs on failure
+        if: failure()
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "📋 Logs de NGINX..."
+            sudo tail -n 50 /var/log/nginx/error.log || echo "No se pudo leer logs de NGINX"
+            
+            echo "📋 Estado de contenedores..."
+            docker ps -a
+            
+            echo "📋 Logs de contenedores activos..."
+            ACTIVE=$(cat ~/.env.deployment | grep ACTIVE_DEPLOYMENT | cut -d'=' -f2)
+            docker compose -f ~/bluegreen/deploy/docker-compose.$ACTIVE.yml logs --tail=50 || echo "No se pudieron leer logs"

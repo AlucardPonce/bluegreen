@@ -36,11 +36,11 @@ echo "🟢 New deployment target: $NEW_DEPLOYMENT (port $NEW_PORT)"
 # Pull de nuevas imágenes
 echo "📥 Pulling new images..."
 export IMAGE_TAG
-docker-compose -f "$SCRIPT_DIR/docker-compose.$NEW_DEPLOYMENT.yml" pull
+docker compose -f "$SCRIPT_DIR/docker-compose.$NEW_DEPLOYMENT.yml" pull
 
 # Levantar el nuevo ambiente
 echo "🚀 Starting $NEW_DEPLOYMENT environment..."
-docker-compose -f "$SCRIPT_DIR/docker-compose.$NEW_DEPLOYMENT.yml" up -d
+docker compose -f "$SCRIPT_DIR/docker-compose.$NEW_DEPLOYMENT.yml" up -d
 
 # Esperar a que los servicios estén listos
 echo "⏳ Waiting for services to be ready..."
@@ -65,7 +65,7 @@ done
 if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
     echo "❌ Health check failed for $NEW_DEPLOYMENT environment!"
     echo "🔄 Rolling back..."
-    docker-compose -f "$SCRIPT_DIR/docker-compose.$NEW_DEPLOYMENT.yml" down
+    docker compose -f "$SCRIPT_DIR/docker-compose.$NEW_DEPLOYMENT.yml" down
     exit 1
 fi
 
@@ -85,7 +85,7 @@ sleep 30
 
 # Apagar el ambiente anterior
 echo "🛑 Stopping $ACTIVE_DEPLOYMENT environment..."
-docker-compose -f "$SCRIPT_DIR/docker-compose.$ACTIVE_DEPLOYMENT.yml" down
+docker compose -f "$SCRIPT_DIR/docker-compose.$ACTIVE_DEPLOYMENT.yml" down
 
 echo ""
 echo "🎉 Deployment completed successfully!"

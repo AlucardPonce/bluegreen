@@ -184,10 +184,10 @@ El sistema automáticamente cambiará al ambiente anterior.
 
 ```bash
 # Logs del ambiente Blue
-docker-compose -f deploy/docker-compose.blue.yml logs -f
+docker compose -f deploy/docker-compose.blue.yml logs -f
 
 # Logs del ambiente Green
-docker-compose -f deploy/docker-compose.green.yml logs -f
+docker compose -f deploy/docker-compose.green.yml logs -f
 
 # Logs de NGINX
 sudo tail -f /var/log/nginx/bluegreen_access.log
