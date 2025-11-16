@@ -1,25 +1,35 @@
-# Use official Node.js image
+# Usar Node.js 18 Alpine
 FROM node:18-alpine
 
-# Install dumb-init for proper signal handling
+# Instalar dumb-init para manejar señales correctamente
 RUN apk add --no-cache dumb-init
 
-# Create app directory
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Copy package files
+# Copiar archivos de dependencias
 COPY package*.json ./
 
-# Install production dependencies
+# Instalar dependencias de producción
 RUN npm ci --only=production
 
-# Copy source code
+# Copiar código fuente
 COPY . .
 
-# Expose port
+# Crear usuario no-root
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+
+# Exponer puerto
 EXPOSE 3000
 
-# Use dumb-init to run node
-USER node
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-CMD ["dumb-init", "node", "server.js"]
+# Usar dumb-init para manejar señales
+ENTRYPOINT ["dumb-init", "--"]
+
+# Comando de inicio
+CMD ["node", "server.js"]
