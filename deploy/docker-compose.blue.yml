@@ -3,46 +3,24 @@ version: '3.8'
 
 services:
   frontend-blue:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/frontint:${IMAGE_TAG}
+    image: ghcr.io/alucardponce/frontint:${IMAGE_TAG:-latest}
     container_name: frontend-blue
-    restart: unless-stopped
     ports:
       - "8081:80"
-    environment:
-      - NODE_ENV=production
-      - DEPLOYMENT=blue
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    restart: unless-stopped
     networks:
-      - app-network
-    labels:
-      - "deployment=blue"
+      - bluegreen
 
   backend-blue:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/backint:${IMAGE_TAG}
+    image: ghcr.io/alucardponce/backint:${IMAGE_TAG:-latest}
     container_name: backend-blue
-    restart: unless-stopped
     ports:
       - "3001:3000"
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - DEPLOYMENT=blue
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    restart: unless-stopped
     networks:
-      - app-network
-    labels:
-      - "deployment=blue"
+      - bluegreen
 
 networks:
-  app-network:
+  bluegreen:
+    name: bluegreen
     driver: bridge
