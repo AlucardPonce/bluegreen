@@ -1,0 +1,122 @@
+/* Layout principal del login */
+.login-layout {
+  min-height: 100vh;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Fondo elegante con gradiente sutil */
+.login-layout::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  z-index: 0;
+}
+
+/* Efectos de fondo sutiles */
+.login-layout::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.03) 0%, transparent 50%);
+  animation: float 20s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(10deg);
+  }
+}
+
+/* Contenido principal */
+.login-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+/* Header de la página */
+.login-page-header {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+/* Título principal */
+.page-title {
+  color: #2c3e50 !important;
+  font-size: 3rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+  text-shadow: none;
+  letter-spacing: -1px;
+}
+
+/* Subtítulo */
+.page-subtitle {
+  color: #5a6c7d;
+  font-size: 1.2rem;
+  font-weight: 300;
+  margin: 0;
+  text-shadow: none;
+}
+
+/* Animaciones de entrada */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+  }
+  
+  .login-content {
+    padding: 20px 16px;
+  }
+  
+  .login-page-header {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 2rem !important;
+  }
+  
+  .login-content {
+    padding: 16px 12px;
+  }
+}

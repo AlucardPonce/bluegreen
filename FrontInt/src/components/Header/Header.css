@@ -1,0 +1,271 @@
+.mapa-app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid rgba(23, 207, 23, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  font-size: 1.875rem;
+  color: #17cf17;
+}
+
+.logo-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+.nav-desktop {
+  display: none;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.3s;
+  position: relative;
+  padding-bottom: 0.25rem;
+}
+
+.nav-link:hover {
+  color: #17cf17;
+}
+
+.nav-link.active {
+  color: #17cf17;
+  font-weight: 600;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #17cf17;
+  border-radius: 2px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-container-header {
+  display: none;
+  position: relative;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  font-size: 1rem;
+  color: #9ca3af;
+}
+
+.search-input-header {
+  width: 12rem;
+  padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: rgba(23, 207, 23, 0.1);
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-input-header:focus {
+  box-shadow: 0 0 0 2px rgba(23, 207, 23, 0.5);
+}
+
+.btn-icon-header {
+  display: grid;
+  place-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(23, 207, 23, 0.1);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-icon-header:hover {
+  background: rgba(23, 207, 23, 0.2);
+}
+
+.btn-icon-header:active {
+  background: #f0f0f0;
+  transform: scale(0.95);
+}
+
+.avatar-container {
+  position: relative;
+}
+
+.avatar-header {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #17cf17, #10b010);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.avatar-header:hover {
+  border-color: #17cf17;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(23, 207, 23, 0.3);
+}
+
+/* Menú desplegable de usuario */
+.user-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-menu-info {
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(23, 207, 23, 0.05), rgba(16, 176, 16, 0.05));
+}
+
+.user-menu-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.user-menu-email {
+  font-size: 12px;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu-divider {
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.user-menu-logout {
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #ef4444;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-menu-logout:hover {
+  background: #fef2f2;
+}
+
+.user-menu-logout:active {
+  background: #fee2e2;
+}
+
+.logout-icon {
+  font-size: 18px;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .nav-desktop {
+    display: flex;
+  }
+
+  .search-container-header {
+    display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .mapa-app-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .logo-title {
+    font-size: 1rem;
+  }
+
+  .logo-icon {
+    font-size: 1.5rem;
+  }
+
+  .user-menu-dropdown {
+    right: -10px;
+    min-width: 200px;
+  }
+
+  .user-menu-name {
+    font-size: 13px;
+  }
+
+  .user-menu-email {
+    font-size: 11px;
+  }
+}
+
+/* Soporte para notch en dispositivos iOS */
+@supports (padding: max(0px)) {
+  .mapa-app-header {
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
