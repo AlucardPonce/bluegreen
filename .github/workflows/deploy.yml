@@ -136,7 +136,8 @@ jobs:
             
             echo "🚀 Ejecutando Blue-Green deployment..."
             chmod +x switch-deployment.sh
-            ./switch-deployment.sh ${{ github.sha }}
+            # Usar latest en lugar del SHA completo
+            ./switch-deployment.sh latest
             
             echo "📊 Estado de contenedores..."
             docker ps --filter "name=frontend\|backend"

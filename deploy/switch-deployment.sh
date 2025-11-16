@@ -2,6 +2,12 @@
 set -e
 
 IMAGE_TAG=${1:-latest}
+# Si recibimos un SHA completo, usar solo los primeros 7 caracteres
+if [ ${#IMAGE_TAG} -eq 40 ]; then
+    IMAGE_TAG="${IMAGE_TAG:0:7}"
+    echo "⚠️  SHA completo recibido, usando SHA corto: $IMAGE_TAG"
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$HOME/.env.deployment"
 
