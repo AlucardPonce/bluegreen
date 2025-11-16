@@ -1,6 +1,10 @@
 # Pipeline CI/CD para deployment automático
 name: Blue-Green Deployment
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     branches:
@@ -12,9 +16,10 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Images
+  build-and-deploy:
     runs-on: ubuntu-latest
+    # Evitar push desde PRs de forks (token no puede publicar)
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork != true
     permissions:
       contents: read
       packages: write
@@ -23,12 +28,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
+      - name: Compute vars (owner lower, short sha)
+        id: vars
+        shell: bash
+        run: |
+          echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
+          registry: ghcr.io
+          username: ${{ steps.vars.outputs.owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Fallback con PAT (crear secret GHCR_PAT con scope write:packages si es necesario)
+      # - name: Log in to GHCR with PAT (fallback)
+      #   if: failure()
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ steps.vars.outputs.owner }}
+      #     password: ${{ secrets.GHCR_PAT }}
 
       - name: Extract metadata for Frontend
         id: meta-frontend
@@ -44,7 +65,9 @@ jobs:
         with:
           context: ./FrontInt
           push: true
-          tags: ${{ steps.meta-frontend.outputs.tags }}
+          tags: |
+            ghcr.io/${{ steps.vars.outputs.owner }}/frontint:latest
+            ghcr.io/${{ steps.vars.outputs.owner }}/frontint:${{ steps.vars.outputs.sha }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
 
       - name: Extract metadata for Backend
@@ -66,7 +89,7 @@ jobs:
 
   deploy:
     name: Deploy to VPS
-    needs: build-and-push
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     
     steps:
