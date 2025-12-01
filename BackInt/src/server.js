@@ -12,22 +12,22 @@ import dishRoutes from './routes/dishRoutes.js';
 import atraccionRoutes from './routes/atraccionRoutes.js';
 import eventosRoutes from './routes/eventosRoutes.js';
 
-const server = express();
+const app = express();
 
 // Middlewares
-server.use(cors());
-server.use(bodyParser.json({ limit: '50mb' }));
-server.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(cors());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // Rutas de la API
-server.use('/api/users', userRoutes);
-server.use('/api/restaurants', restaurantRoutes);
-server.use('/api/dishes', dishRoutes);
-server.use('/api/atracciones', atraccionRoutes);
-server.use('/api/eventos', eventosRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/dishes', dishRoutes);
+app.use('/api/atracciones', atraccionRoutes);
+app.use('/api/eventos', eventosRoutes);
 
 // Healthcheck simple (no depende de DB)
-server.get('/api/health', (req, res) => {
+app.get('/api/health', (req, res) => {
 	res.json({ success: true, message: 'OK', timestamp: new Date().toISOString() });
 });
 
@@ -40,9 +40,17 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-server.listen(PORT, HOST, () => {
+const server = app.listen(PORT, HOST, () => {
 	console.log(`🚀 Servidor corriendo en ${HOST}:${PORT}`);
 	console.log(`💚 Health: http://127.0.0.1:${PORT}/api/health`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+	console.log('SIGTERM signal received: closing HTTP server');
+	server.close(() => {
+		console.log('HTTP server closed');
+	});
 });
 
 export default server;

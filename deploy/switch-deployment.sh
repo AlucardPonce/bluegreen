@@ -39,6 +39,10 @@ fi
 
 echo "🟢 New deployment target: $NEW_DEPLOYMENT (port $NEW_PORT)"
 
+# NOTA: El login a GHCR se hace en el workflow de GitHub Actions
+# Si los paquetes son públicos, no es necesario login
+# Si son privados, el workflow ya hace login antes de ejecutar este script
+
 # Pull de nuevas imágenes
 echo "📥 Pulling new images..."
 export IMAGE_TAG

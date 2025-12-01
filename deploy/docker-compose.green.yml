@@ -1,6 +1,3 @@
-# Docker Compose para ambiente Green
-version: '3.8'
-
 services:
   frontend-green:
     image: ghcr.io/alucardponce/frontint:${IMAGE_TAG:-latest}

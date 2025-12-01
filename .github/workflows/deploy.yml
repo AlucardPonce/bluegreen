@@ -118,6 +118,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
+          envs: GITHUB_TOKEN
           script: |
             set -e
             cd ~/bluegreen/deploy
@@ -126,7 +127,7 @@ jobs:
             ls -la
             
             echo "🔑 Login a GitHub Container Registry..."
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             echo "🔵🟢 Verificando deployment activo actual..."
             if [ ! -f ~/.env.deployment ]; then

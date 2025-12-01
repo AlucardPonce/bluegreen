@@ -236,3 +236,37 @@ cat ~/bluegreen/.env.deployment
 ## 🌐 URL del Servicio
 
 **Producción**: http://tu-ip-vps
+
+## 🧪 Testing
+
+### Pruebas de Integración con Supertest
+
+El backend incluye una suite completa de pruebas de integración:
+
+```bash
+# Ejecutar tests
+cd BackInt
+npm test
+
+# Ver cobertura
+npm test -- --coverage
+```
+
+**Tests implementados:**
+- ✅ Health check endpoint
+- ✅ GET /api/users (lista de usuarios)
+- ✅ POST /api/users (crear usuario)
+- ✅ POST /api/users (validación de campos)
+- ✅ GET /api/users/:id (usuario por ID)
+- ✅ GET /api/users/:id (validación de ID)
+- ✅ 404 handler (rutas no encontradas)
+
+Ver documentación completa en [TESTING.md](./TESTING.md)
+
+## 📚 Documentación
+
+Para documentación completa y detallada del proyecto, consulta:
+
+- **[DOCUMENTATION.md](./DOCUMENTATION.md)** - Documentación técnica completa
+- **[TESTING.md](./TESTING.md)** - Guía de pruebas de integración
+- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Guía de deployment paso a paso
