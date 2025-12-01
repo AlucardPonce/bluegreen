@@ -27,6 +27,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Cache Frontend dependencies
+        uses: actions/cache@v4
+        with:
+          path: FrontInt/node_modules
+          key: frontint-${{ runner.os }}-${{ hashFiles('FrontInt/package-lock.json') }}
+          restore-keys: |
+            frontint-${{ runner.os }}-
+
+      - name: Install and Test Frontend
+        working-directory: ./FrontInt
+        run: |
+          npm ci
+          npm test --ignore-scripts --if-present --include=**/*.test.* -- --ci
+
+      - name: Cache Backend dependencies
+        uses: actions/cache@v4
+        with:
+          path: BackInt/node_modules
+          key: backint-${{ runner.os }}-${{ hashFiles('BackInt/package-lock.json') }}
+          restore-keys: |
+            backint-${{ runner.os }}-
+
+      - name: Install and Test Backend
+        working-directory: ./BackInt
+        run: |
+          npm ci
+          npm test --ignore-scripts --if-present --include=**/*.test.* -- --ci
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
