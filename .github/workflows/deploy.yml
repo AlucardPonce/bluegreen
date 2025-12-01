@@ -111,14 +111,26 @@ jobs:
           target: "~/bluegreen"
           strip_components: 0
 
+      - name: Prepare deploy env (owner and actor)
+        run: |
+          echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+          echo "ACTOR=${GITHUB_ACTOR}" >> "$GITHUB_ENV"
+
       - name: Execute Blue-Green deployment
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GHCR_USERNAME: ${{ env.OWNER_LC }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           envs: GITHUB_TOKEN,PERSONAL_ACCESS_TOKEN,GHCR_USERNAME
+          envs_format: export
+          request_pty: false
+          debug: true
           script: |
             set -e
             cd ~/bluegreen/deploy
@@ -126,15 +138,18 @@ jobs:
             ls -la
 
             echo "🔑 Login a GitHub Container Registry..."
-            # Bypass credential helpers that require TTY
             export DOCKER_CONFIG="$(mktemp -d)"
-
             # Prefer PAT if present, fallback to GITHUB_TOKEN
             TOKEN="${PERSONAL_ACCESS_TOKEN:-$GITHUB_TOKEN}"
-            USER="${GHCR_USERNAME:-${{ github.actor }}}"
+            USER="${GHCR_USERNAME:-${ACTOR}}"
+
+            # Debug (no token content, just presence)
+            if [ -n "$PERSONAL_ACCESS_TOKEN" ]; then echo "🔐 Using PERSONAL_ACCESS_TOKEN"; fi
+            if [ -n "$GITHUB_TOKEN" ]; then echo "🔐 Using GITHUB_TOKEN"; fi
+            echo "👤 GHCR username: $USER"
 
             if [ -z "$TOKEN" ]; then
-              echo "❌ No token provided (PERSONAL_ACCESS_TOKEN/GITHUB_TOKEN)"
+              echo "❌ No token provided. Define repository secrets: PERSONAL_ACCESS_TOKEN or rely on GITHUB_TOKEN."
               exit 1
             fi
 
