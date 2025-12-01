@@ -6,7 +6,7 @@ Implementación de estrategia de despliegue Blue-Green para una aplicación Full
 - **Frontend**: React + Vite
 - **Backend**: Node.js + Express
 - **Infraestructura**: Docker + Nginx + GitHub Actions
- 
+
 ## 🏗️ Arquitectura
 
 ```
