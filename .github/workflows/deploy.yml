@@ -118,34 +118,45 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          envs: GITHUB_TOKEN
+          envs: GITHUB_TOKEN,PERSONAL_ACCESS_TOKEN,GHCR_USERNAME
           script: |
             set -e
             cd ~/bluegreen/deploy
-            
             echo "📁 Verificando archivos..."
             ls -la
-            
+
             echo "🔑 Login a GitHub Container Registry..."
-            echo "$GITHUB_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
+            # Bypass credential helpers that require TTY
+            export DOCKER_CONFIG="$(mktemp -d)"
+
+            # Prefer PAT if present, fallback to GITHUB_TOKEN
+            TOKEN="${PERSONAL_ACCESS_TOKEN:-$GITHUB_TOKEN}"
+            USER="${GHCR_USERNAME:-${{ github.actor }}}"
+
+            if [ -z "$TOKEN" ]; then
+              echo "❌ No token provided (PERSONAL_ACCESS_TOKEN/GITHUB_TOKEN)"
+              exit 1
+            fi
+
+            echo "$TOKEN" | docker login ghcr.io -u "$USER" --password-stdin
+
             echo "🔵🟢 Verificando deployment activo actual..."
             if [ ! -f ~/.env.deployment ]; then
               echo "ACTIVE_DEPLOYMENT=blue" > ~/.env.deployment
             fi
             cat ~/.env.deployment
-            
+
             echo "🚀 Ejecutando Blue-Green deployment..."
             chmod +x switch-deployment.sh
             # Usar latest en lugar del SHA completo
             ./switch-deployment.sh latest
-            
+
             echo "📊 Estado de contenedores..."
             docker ps --filter "name=frontend\|backend"
-            
+
             echo "🔍 Verificando ambiente activo..."
             cat ~/.env.deployment
-            
+
             echo "🏥 Health check de contenedores..."
             sleep 5
             docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
