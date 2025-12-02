@@ -43,7 +43,7 @@ function Login() {
             color: '#7f8c8d',
             margin: '0'
           }}>
-            Bienvenido a Descubrir Arroyo Seco aaaaaaaa
+            Bienvenido a Descubrir Arroyo Seco
           </p>
         </div>
         <FormLogin />
